@@ -3,7 +3,7 @@ const pino = require('pino');
 const http = require('http'); 
 
 // ⚠️ TU NUMERO
-const MY_PHONE_NUMBER = "525532397858"; 
+const MY_PHONE_NUMBER = "+525532397858"; 
 
 const PORT = process.env.PORT || 3000; 
 
@@ -30,25 +30,23 @@ const MAX_LOBBIES = 6;
 // SERVIDOR WEB
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE V10 (Motor Mac)');
+    res.end('🤖 Bot Elementals: ONLINE V11');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
 async function connectToWhatsApp() {
-    // 🗑️ Usamos una carpeta limpia V10 para asegurar que pida código
-    const { state, saveCreds } = await useMultiFileAuthState('auth_elementals_mac_v10');
+    // 🆕 SESIÓN V11
+    const { state, saveCreds } = await useMultiFileAuthState('auth_elementals_final_v11');
     
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
-        // 💎 AQUÍ ESTÁ LA CLAVE: Volvimos a macOS que es el que te funcionó
-        browser: Browsers.macOS('Chrome'),
+        browser: Browsers.macOS('Chrome'), // Mantenemos Mac
         syncFullHistory: false,
         connectTimeoutMs: 60000, 
     });
 
-    // GENERADOR DE CÓDIGO (Lógica del V7.4)
     if (!sock.authState.creds.registered) {
         setTimeout(async () => {
             try {
@@ -56,10 +54,9 @@ async function connectToWhatsApp() {
                 const code = await sock.requestPairingCode(MY_PHONE_NUMBER);
                 const codeLimpio = code?.match(/.{1,4}/g)?.join("-") || code;
                 
-                console.log(`\n\n🟢🟢🟢 CÓDIGO V10 (Motor Mac) 🟢🟢🟢`);
-                console.log(`👉      ${codeLimpio}      👈`);
-                console.log(`🟢🟢🟢 ESCRIBELO YA 🟢🟢🟢\n\n`);
-
+                console.log(`\n\n🟢 CODIGO V11 🟢`);
+                console.log(`👉  ${codeLimpio}  👈`);
+                console.log(`🟢 ÚSALO RÁPIDO 🟢\n\n`);
             } catch (e) { console.log("⚠️ Esperando...", e.message); }
         }, 6000); 
     }
@@ -70,10 +67,9 @@ async function connectToWhatsApp() {
         const { connection, lastDisconnect } = update;
         if (connection === 'close') {
             const reason = lastDisconnect.error?.output?.statusCode;
-            // Lógica simple del V7.4 que reconectaba mejor
             if (reason !== DisconnectReason.loggedOut) setTimeout(connectToWhatsApp, 5000);
         } else if (connection === 'open') {
-            console.log('✅ BOT V10 CONECTADO - MENÚ Y DISCORD ARREGLADOS');
+            console.log('✅ BOT V11 CONECTADO');
         }
     });
 
@@ -92,31 +88,22 @@ async function connectToWhatsApp() {
             
             if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
 
-            // --- COMANDOS MEJORADOS (V8) ---
-
-            // 1. MENU BONITO
+            // MENU
             if (command === '.menu' || command === '.ayuda') {
-                const txt = "🤖 *ELEMENTALS BOT* 🤖\n\n" +
-                            "🏆 *RANKED*\n.ranked duo | trio | 5q\n\n" +
-                            "❄️ *ARAM*\n.aram duo | trio | 4q | 5q\n\n" +
-                            "📊 *EXTRA*\n.encuesta | .discord | .reglas\n\n" +
-                            "👑 *ADMIN*\n.adm | .atencion";
+                const txt = "🤖 *ELEMENTALS BOT* 🤖\n\n🏆 *RANKED*\n.ranked duo | trio | 5q\n\n❄️ *ARAM*\n.aram duo | trio | 4q | 5q\n\n📊 *EXTRA*\n.encuesta | .discord | .reglas\n\n👑 *ADMIN*\n.adm | .atencion";
                 await sock.sendMessage(remoteJid, { text: txt });
             }
-
-            // 2. DISCORD (Versión Texto V8 - No falla)
+            // DISCORD
             if (command === '.discord') {
                 await sock.sendMessage(remoteJid, { text: "📢 *DISCORD OFICIAL ELEMENTALS*\n🔗 https://discord.gg/yXnPdAvef" });
             }
-
-            // 3. ADMINS (Con números)
+            // ADMINS
             if (command === '.adm') {
                 if (subCommand === 'nuevo' && sender.includes(MY_PHONE_NUMBER)) { admins.push({ nombre: args[2], numero: args[3] }); return sock.sendMessage(remoteJid, {text: "✅"}); }
                 if (subCommand === 'borrar' && sender.includes(MY_PHONE_NUMBER)) { admins = admins.filter(a => a.nombre.toLowerCase() !== args[2].toLowerCase()); return sock.sendMessage(remoteJid, {text: "🗑️"}); }
                 let t = "👑 *ADMINISTRADORES*\n\n"; admins.forEach(a => t += `👤 ${a.nombre} — +${a.numero}\n`); await sock.sendMessage(remoteJid, { text: t });
             }
-
-            // 4. RANKED
+            // RANKED
             if (command === '.ranked') {
                 if (!['duo','trio','5q'].includes(subCommand)) return;
                 let salaID = null; for (let i=1; i<=MAX_LOBBIES; i++) if(!lobbies[remoteJid][i]) {salaID=i; break;}
@@ -128,8 +115,7 @@ async function connectToWhatsApp() {
                 lobbies[remoteJid][salaID]={id:salaID, tipo:`RANKED ${subCommand.toUpperCase()}`, rango, limite, participantes:[sender], timer: setTimeout(()=>{delete lobbies[remoteJid][salaID];},300000)};
                 await sock.sendMessage(remoteJid, {text:`🎮 *RANKED ${subCommand.toUpperCase()}* #${salaID}\n🏅 ${rango}\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions:ments});
             }
-
-            // 5. ARAM
+            // ARAM
             if (command === '.aram') {
                 if (!['duo','trio','4q','5q'].includes(subCommand)) return;
                 let salaID = null; for (let i=1; i<=MAX_LOBBIES; i++) if(!lobbies[remoteJid][i]) {salaID=i; break;}
@@ -140,8 +126,7 @@ async function connectToWhatsApp() {
                 lobbies[remoteJid][salaID]={id:salaID, tipo:`ARAM`, rango:"Abismo", limite, participantes:[sender], timer: setTimeout(()=>{delete lobbies[remoteJid][salaID];},300000)};
                 await sock.sendMessage(remoteJid, {text:`❄️ *ARAM* #${salaID}\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions:ments});
             }
-
-            // 6. JUGAR
+            // JUGAR
             if (command === '.me' && subCommand === 'uno') {
                 let id=args[2]; const keys=Object.keys(lobbies[remoteJid]);
                 if(!id && keys.length===1) id=keys[0];
@@ -155,8 +140,7 @@ async function connectToWhatsApp() {
                     await sock.sendMessage(remoteJid, {text:`🚀 *FULL TEAM (#${sala.id})*\n🎮 ${sala.tipo}\n${l}\n\n#ELNS Go!`, mentions:sala.participantes}); delete lobbies[remoteJid][id];
                 }
             }
-
-            // 7. EXTRA
+            // OTROS
             if (command === '.encuesta') {
                 let contenido = text.replace(/^\.encuesta\s*/i, '').trim();
                 let partes = contenido.split('/').map(s => s.trim()).filter(s => s);
