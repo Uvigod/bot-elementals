@@ -34,35 +34,39 @@ const RANGOS = {
 
 let lobbies = {};
 
-// 🌐 SERVIDOR WEB
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('🤖 Bot Elementals: ACTIVO Y CORRIENDO 24/7');
 });
-
-server.listen(PORT, () => {
-    console.log(`🌐 Servidor Web escuchando en el puerto ${PORT}`);
-});
+server.listen(PORT, () => { console.log(`🌐 Servidor Web puerto ${PORT}`); });
 
 async function connectToWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+    // ⚠️ CAMBIO IMPORTANTE: Nuevo nombre de carpeta para borrar errores viejos
+    const { state, saveCreds } = await useMultiFileAuthState('auth_elementals_clean_v1');
     
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
         browser: ["Ubuntu", "Chrome", "20.0.04"],
-        connectTimeoutMs: 60000, // Más tiempo para conectar
+        connectTimeoutMs: 60000, 
     });
 
-    // 🕒 ESPERA DE SEGURIDAD PARA EL CÓDIGO
     if (!sock.authState.creds.registered) {
         setTimeout(async () => {
             try {
                 const code = await sock.requestPairingCode(MY_PHONE_NUMBER);
-                console.log(`\n📢 TU CODIGO: ${code?.match(/.{1,4}/g)?.join("-") || code}\n`);
+                const codeLimpio = code?.match(/.{1,4}/g)?.join("-") || code;
+                
+                // 📢 MENSAJE GIGANTE PARA QUE LO VEAS
+                console.log(`\n\n\n=============================================`);
+                console.log(`🧨🧨🧨   TU CODIGO DE VINCULACION   🧨🧨🧨`);
+                console.log(`\n             ${codeLimpio}             \n`);
+                console.log(`🧨🧨🧨   ESCRIBELO RAPIDO EN WHATSAPP   🧨🧨🧨`);
+                console.log(`=============================================\n\n\n`);
+
             } catch (e) { console.log("Error pidiendo código", e); }
-        }, 5000); // Espera 5 segundos antes de pedir el código
+        }, 4000); 
     }
 
     sock.ev.on('creds.update', saveCreds);
@@ -72,12 +76,11 @@ async function connectToWhatsApp() {
         if (connection === 'close') {
             const shouldReconnect = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
             if (shouldReconnect) {
-                // 🛑 PAUSA ANTI-BUCLE: Espera 5 segundos antes de reiniciar
-                console.log("⚠️ Conexión cerrada. Reconectando en 5 segundos...");
+                console.log("⚠️ Reconectando en 5 segundos...");
                 setTimeout(connectToWhatsApp, 5000);
             }
         } else if (connection === 'open') {
-            console.log('✅ BOT ACTIVO: Conexión Estable');
+            console.log('✅ BOT ACTIVO: CONEXIÓN LIMPIA Y EXITOSA');
         }
     });
 
@@ -96,12 +99,10 @@ async function connectToWhatsApp() {
         
         if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
 
-        // COMANDOS (Menu, Adm, Ranked, Aram, etc)
         if (command === '.menu' || command === '.ayuda' || command === '.help') {
             const txtMenu = "🤖 *COMANDOS ELEMENTALS* 🤖\n\n🏆 *RANKED*\n• .ranked duo | trio | 5q [avisar]\n\n❄️ *ARAM*\n• .aram duo | trio | 4q | 5q [avisar]\n\n👑 *GESTIÓN ADMINS*\n• .adm\n• .adm nuevo [Nombre] [Numero]\n• .adm borrar [Nombre]\n\n📢 *UTILIDAD*\n• .todos [mensaje]\n• .encuesta Pregunta / Opción 1 / Opción 2\n• .me uno [ID]\n\n⚡ *INFO*\n• .discord | .reglas";
             await sock.sendMessage(remoteJid, { text: txtMenu });
         }
-
         if (command === '.adm') {
             if (subCommand === 'nuevo' || subCommand === 'add') {
                 if (!sender.includes(MY_PHONE_NUMBER)) { await sock.sendMessage(remoteJid, { text: "⛔ Solo el Dueño puede editar admins." }); return; }
@@ -125,7 +126,6 @@ async function connectToWhatsApp() {
             admins.forEach(a => { textoAdmins += `👤 ${a.nombre} — +${a.numero}\n`; });
             await sock.sendMessage(remoteJid, { text: textoAdmins });
         }
-
         if (command === '.todos' || command === '.tagall') {
             if (!remoteJid.endsWith('@g.us')) return;
             try {
@@ -136,7 +136,6 @@ async function connectToWhatsApp() {
                 await sock.sendMessage(remoteJid, { text: textoFinal, mentions: participants });
             } catch (error) { console.log("Error en .todos:", error); }
         }
-
         if (command === '.aram') {
             const modosAram = ['duo', 'trio', 'cuarteto', '4q', '5q'];
             if (!modosAram.includes(subCommand)) { await sock.sendMessage(remoteJid, { text: "❄️ *Modos ARAM:*\nUse: .aram duo | trio | cuarteto | 5q" }); return; }
@@ -150,7 +149,6 @@ async function connectToWhatsApp() {
             const mensajeMenu = `🎮 *ARAM ${etiquetaModo}* (Sala #${salaID})\n❄️ *Abismo de los Lamentos*\n👑 Líder: @${sender.split('@')[0]}\n👥 Cupos: 1/${limite}\n⏳ 5 Minutos${avisoTexto}\n\n👉 Escribe *.me uno ${salaID}* para entrar.`;
             await sock.sendMessage(remoteJid, { text: mensajeMenu, mentions: mentions });
         }
-
         if (command === '.ranked') {
             const tiposValidos = ['duo', 'trio', '5q']; if (!tiposValidos.includes(subCommand)) return;
             let mentions = [sender]; let avisoTexto = "";
@@ -162,7 +160,6 @@ async function connectToWhatsApp() {
             const mensajeMenu = `🎮 *RANKED ${tipo}* (Sala #${salaID})\n🏅 *${nombreRango}*\n👑 Líder: @${sender.split('@')[0]}\n👥 Cupos: 1/${limite}\n⏳ 5 Minutos${avisoTexto}\n\n👉 Escribe *.me uno ${salaID}* para entrar.`;
             await sock.sendMessage(remoteJid, { text: mensajeMenu, mentions: mentions });
         }
-
         if (command === '.me' && subCommand === 'uno') {
             const salasActivas = Object.keys(lobbies[remoteJid]); if (salasActivas.length === 0) return; 
             let idTarget = null; const argNumero = args[2];
