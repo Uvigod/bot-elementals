@@ -1,13 +1,12 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, delay } = require('@whiskeysockets/baileys');
 const pino = require('pino');
-const http = require('http'); // 🆕 NECESARIO PARA RENDER
+const http = require('http');
 
 // ⚠️ TU NUMERO
 const MY_PHONE_NUMBER = "525532397858"; 
 const MAX_LOBBIES = 6; 
-const PORT = process.env.PORT || 3000; // 🆕 PUERTO PARA RENDER
+const PORT = process.env.PORT || 3000;
 
-// RANGOS
 const RANGOS = {
     'hierro': 'Hierro ⚔️ Bronce', 'bronce': 'Bronce ⚔️ Plata', 'plata': 'Plata ⚔️ Oro', 'oro': 'Oro ⚔️ Platino',
     'platino': 'Platino ⚔️ Esmeralda', 'esmeralda': 'Esmeralda ⚔️ Diamante', 'diamante': 'Diamante ⚔️ Maestro',
@@ -18,22 +17,21 @@ const RANGOS = {
 
 let lobbies = {};
 
-// 🆕 SERVIDOR WEB (Para que Render no mate el bot)
+// SERVIDOR WEB
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE (Config Termux)');
+    res.end('🤖 Bot Elementals: ONLINE');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
 async function connectToWhatsApp() {
-    // 🆕 Cambiamos nombre para forzar limpieza
-    const { state, saveCreds } = await useMultiFileAuthState('auth_termux_final_v12');
+    // 🛡️ SESIÓN ESTABLE
+    const { state, saveCreds } = await useMultiFileAuthState('auth_termux_render_final');
     
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
-        // 💎 TU CONFIGURACIÓN DE TERMUX (La que funciona)
         browser: ["Ubuntu", "Chrome", "20.0.04"],
         syncFullHistory: false,
         connectTimeoutMs: 60000,
@@ -42,14 +40,11 @@ async function connectToWhatsApp() {
     if (!sock.authState.creds.registered) {
         setTimeout(async () => {
             try {
-                await delay(3000); // Esperamos un poco
+                await delay(3000);
                 const code = await sock.requestPairingCode(MY_PHONE_NUMBER);
                 const codeLimpio = code?.match(/.{1,4}/g)?.join("-") || code;
-                
-                console.log(`\n\n🟢🟢🟢 TU CÓDIGO (Ubuntu) 🟢🟢🟢`);
-                console.log(`👉      ${codeLimpio}      👈`);
-                console.log(`🟢🟢🟢 VINCULA AHORA 🟢🟢🟢\n\n`);
-            } catch (e) { console.log("⚠️ Error pidiendo código", e.message); }
+                console.log(`\n\n🟢 CODIGO: ${codeLimpio} 🟢\n\n`);
+            } catch (e) { console.log("⚠️ Esperando...", e.message); }
         }, 3000);
     }
 
@@ -61,115 +56,103 @@ async function connectToWhatsApp() {
             const reason = lastDisconnect.error?.output?.statusCode;
             if (reason !== DisconnectReason.loggedOut) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('✅ BOT ACTIVO: CONFIGURACIÓN TERMUX + RENDER');
+            console.log('✅ BOT LISTO CON MENÚ COMPLETO');
         }
     });
 
     sock.ev.on('messages.upsert', async ({ messages }) => {
-        const m = messages[0];
-        if (!m.message) return;
-        const text = m.message.conversation || m.message.extendedTextMessage?.text || "";
-        if (!text) return;
-
-        const remoteJid = m.key.remoteJid;
-        const sender = m.key.participant || m.key.remoteJid; 
-        const args = text.trim().split(/\s+/);
-        const command = args[0].toLowerCase(); 
-        const subCommand = args[1] ? args[1].toLowerCase() : ""; 
-        const eloArg = args.slice(2).join("").toLowerCase(); 
-        
-        if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
-
-        // 1. MENU
-        if (command === '.menu' || command === '.ayuda' || command === '.help') {
-            const txtMenu = "🤖 *COMANDOS ELEMENTALS* 🤖\n\n🏆 *RANKED*\n• .ranked duo | trio | 5q\n\n❄️ *ARAM*\n• .aram duo | trio | 4q | 5q\n\n📊 *EXTRA*\n• .encuesta | .discord | .adm | .atencion";
-            await sock.sendMessage(remoteJid, { text: txtMenu });
-        }
-
-        // 2. ARAM (Tu lógica exacta)
-        if (command === '.aram') {
-            const modosAram = ['duo', 'trio', 'cuarteto', '4q', '5q'];
-            if (!modosAram.includes(subCommand)) return sock.sendMessage(remoteJid, { text: "⚠️ Use: .aram duo | trio | 4q | 5q" });
-
-            let limite = 5; let etiquetaModo = "5Q";
-            if (subCommand === 'duo') { limite = 2; etiquetaModo = "DUO"; }
-            else if (subCommand === 'trio') { limite = 3; etiquetaModo = "TRIO"; }
-            else if (subCommand === 'cuarteto' || subCommand === '4q') { limite = 4; etiquetaModo = "4Q"; }
-
-            let salaID = null; for (let i = 1; i <= MAX_LOBBIES; i++) if (!lobbies[remoteJid][i]) { salaID = i; break; }
-            if (!salaID) return sock.sendMessage(remoteJid, { text: "⚠️ Salas llenas." });
-
-            let aviso=""; let ments=[sender];
-            if(text.includes('avisar') && remoteJid.endsWith('@g.us')) { 
-                const meta=await sock.groupMetadata(remoteJid); ments=meta.participants.map(p=>p.id); aviso="\n📢 *LLAMADO*"; 
-            }
-
-            lobbies[remoteJid][salaID] = {
-                id: salaID, tipo: `ARAM ${etiquetaModo}`, rango: 'Abismo', limite: limite, participantes: [sender],
-                timer: setTimeout(() => { delete lobbies[remoteJid][salaID]; sock.sendMessage(remoteJid, {text:`🗑️ Sala ${salaID} expiró.`})}, 300000)
-            };
-            await sock.sendMessage(remoteJid, { text: `🎮 *ARAM ${etiquetaModo}* (Sala ${salaID})\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions: ments });
-        }
-
-        // 3. RANKED (Tu lógica exacta)
-        if (command === '.ranked') {
-            const tiposValidos = ['duo', 'trio', '5q'];
-            if (!tiposValidos.includes(subCommand)) return;
-            let salaID = null; for (let i = 1; i <= MAX_LOBBIES; i++) if (!lobbies[remoteJid][i]) { salaID = i; break; }
-            if (!salaID) return sock.sendMessage(remoteJid, { text: "⚠️ Salas llenas." });
-
-            let limite = (subCommand === 'duo') ? 2 : (subCommand === 'trio') ? 3 : 5;
-            let tipo = subCommand.toUpperCase();
-            let nombreRango = RANGOS[eloArg] || "Elo Libre";
-
-            let aviso=""; let ments=[sender];
-            if(text.includes('avisar') && remoteJid.endsWith('@g.us')) { 
-                const meta=await sock.groupMetadata(remoteJid); ments=meta.participants.map(p=>p.id); aviso="\n📢 *LLAMADO*"; 
-            }
-
-            lobbies[remoteJid][salaID] = {
-                id: salaID, tipo: `RANKED ${tipo}`, rango: nombreRango, limite: limite, participantes: [sender],
-                timer: setTimeout(() => { delete lobbies[remoteJid][salaID]; sock.sendMessage(remoteJid, {text:`🗑️ Sala ${salaID} expiró.`})}, 300000)
-            };
-            await sock.sendMessage(remoteJid, { text: `🎮 *RANKED ${tipo}* (Sala ${salaID})\n🏅 ${nombreRango}\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions: ments });
-        }
-
-        // 4. UNIRSE
-        if (command === '.me' && subCommand === 'uno') {
-            let idTarget = args[2];
-            const salasActivas = Object.keys(lobbies[remoteJid]);
-            if (!idTarget && salasActivas.length === 1) idTarget = salasActivas[0];
+        try {
+            const m = messages[0];
+            if (!m.message || m.key.fromMe) return;
+            const text = m.message.conversation || m.message.extendedTextMessage?.text || "";
+            if (!text) return;
+            const remoteJid = m.key.remoteJid;
+            const sender = m.key.participant || m.key.remoteJid; 
+            const args = text.trim().split(/\s+/);
+            const command = args[0].toLowerCase(); 
+            const subCommand = args[1] ? args[1].toLowerCase() : ""; 
+            const eloArg = args.slice(2).join("").toLowerCase(); 
             
-            const sala = lobbies[remoteJid][idTarget];
-            if (!sala || sala.participantes.includes(sender)) return; 
-            sala.participantes.push(sender);
+            if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
 
-            if (sala.participantes.length < sala.limite) {
-                let lista = ""; sala.participantes.forEach((p, i) => lista += `\n${i + 1}. @${p.split('@')[0]}`);
-                await sock.sendMessage(remoteJid, { text: `🎮 *${sala.tipo}* (Sala ${sala.id})\n👥 ${sala.participantes.length}/${sala.limite}\n${lista}\n👉 .me uno ${sala.id}`, mentions: sala.participantes });
-            } else {
-                clearTimeout(sala.timer);
-                let txt = `🚀 *FULL TEAM (Sala ${sala.id})*\n🎮 ${sala.tipo}\n`;
-                sala.participantes.forEach((p, i) => txt += `${i+1}. @${p.split('@')[0]}\n`);
-                txt += `\n#ELNS`; 
-                await sock.sendMessage(remoteJid, { text: txt, mentions: sala.participantes });
-                delete lobbies[remoteJid][idTarget]; 
+            // --- 1. MENU COMPLETO ---
+            if (command === '.menu' || command === '.ayuda') {
+                const txtMenu = "🤖 *COMANDOS ELEMENTALS* 🤖\n\n" +
+                                "🏆 *RANKED*\n" +
+                                "• .ranked duo [elo]\n" +
+                                "• .ranked trio [elo]\n" +
+                                "• .ranked 5q\n\n" +
+                                "❄️ *ARAM*\n" +
+                                "• .aram duo\n" +
+                                "• .aram trio\n" +
+                                "• .aram cuarteto (o 4q)\n" +
+                                "• .aram 5q\n\n" +
+                                "📥 *ACCIONES*\n" +
+                                "• .me uno [ID] → Entrar a sala\n\n" +
+                                "📊 *ENCUESTAS*\n" +
+                                "• .encuesta Pregunta / Opción 1 / Opción 2\n\n" +
+                                "⚡ *INFO*\n" +
+                                "• .discord | .reglas | .adm | .atencion";
+                await sock.sendMessage(remoteJid, { text: txtMenu });
             }
-        }
 
-        // 5. OTROS
-        if (command === '.encuesta') {
-            let contenido = text.replace(/^\.encuesta\s*/i, '').trim();
-            let partes = contenido.split('/').map(s => s.trim()).filter(s => s);
-            let opciones = partes.length > 1 ? partes.slice(1) : ["Sí", "No"];
-            await sock.sendMessage(remoteJid, { poll: { name: "📊 " + partes[0], values: opciones, selectableCount: 1 } });
-        }
-        if (command === '.adm') await sock.sendMessage(remoteJid, { text: "👑 *ADMINS:*\nUvi, Estef, Samu, Cham, Ore" });
-        if (command === '.discord') await sock.sendMessage(remoteJid, { text: "📢 *DISCORD*\n🔗 https://discord.gg/yXnPdAvef" });
-        if (command === '.atencion' && remoteJid.endsWith('@g.us')) {
-             const meta = await sock.groupMetadata(remoteJid);
-             await sock.sendMessage(remoteJid, { text: args.slice(1).join(" ") || "📢 *Atención*", mentions: meta.participants.map(p => p.id) });
-        }
+            // --- 2. ADMINS ---
+            if (command === '.adm') {
+                const txtAdmins = "👑 *ADMINISTRADORES*\n" +
+                                  "👤 Uvi - +525654812179\n" +
+                                  "👤 Estef - +573114860414\n" +
+                                  "👤 Samu - +573173607093\n" +
+                                  "👤 Cham - +59894793177\n" +
+                                  "👤 Ore - +50687309582";
+                await sock.sendMessage(remoteJid, { text: txtAdmins });
+            }
+
+            // --- RESTO DE COMANDOS ---
+            if (command === '.aram') {
+                if (!['duo','trio','4q','cuarteto','5q'].includes(subCommand)) return sock.sendMessage(remoteJid, { text: "⚠️ Use: .aram duo | trio | 4q | 5q" });
+                let limite = 5; if(subCommand==='duo') limite=2; if(subCommand==='trio') limite=3; if(subCommand==='4q'||subCommand==='cuarteto') limite=4;
+                let salaID = null; for(let i=1;i<=MAX_LOBBIES;i++) if(!lobbies[remoteJid][i]){salaID=i;break;}
+                if(!salaID) return sock.sendMessage(remoteJid,{text:"⚠️ Salas llenas"});
+                let aviso=""; let ments=[sender];
+                if(text.includes('avisar') && remoteJid.endsWith('@g.us')) { const meta=await sock.groupMetadata(remoteJid); ments=meta.participants.map(p=>p.id); aviso="\n📢 *LLAMADO*"; }
+                lobbies[remoteJid][salaID]={id:salaID, tipo:`ARAM`, rango:'Abismo', limite, participantes:[sender], timer:setTimeout(()=>{delete lobbies[remoteJid][salaID]; sock.sendMessage(remoteJid,{text:`🗑️ Sala ${salaID} expiró`})},300000)};
+                await sock.sendMessage(remoteJid,{text:`🎮 *ARAM* (Sala ${salaID})\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions:ments});
+            }
+            if (command === '.ranked') {
+                if (!['duo','trio','5q'].includes(subCommand)) return;
+                let salaID = null; for(let i=1;i<=MAX_LOBBIES;i++) if(!lobbies[remoteJid][i]){salaID=i;break;}
+                if(!salaID) return sock.sendMessage(remoteJid,{text:"⚠️ Salas llenas"});
+                let limite=5; if(subCommand==='duo') limite=2; if(subCommand==='trio') limite=3;
+                let rango = RANGOS[eloArg] || "Elo Libre";
+                let aviso=""; let ments=[sender];
+                if(text.includes('avisar') && remoteJid.endsWith('@g.us')) { const meta=await sock.groupMetadata(remoteJid); ments=meta.participants.map(p=>p.id); aviso="\n📢 *LLAMADO*"; }
+                lobbies[remoteJid][salaID]={id:salaID, tipo:`RANKED ${subCommand.toUpperCase()}`, rango, limite, participantes:[sender], timer:setTimeout(()=>{delete lobbies[remoteJid][salaID]; sock.sendMessage(remoteJid,{text:`🗑️ Sala ${salaID} expiró`})},300000)};
+                await sock.sendMessage(remoteJid,{text:`🎮 *RANKED* (Sala ${salaID})\n🏅 ${rango}\n👥 1/${limite}\n👉 .me uno ${salaID}${aviso}`, mentions:ments});
+            }
+            if (command === '.me' && subCommand === 'uno') {
+                let id=args[2]; const keys=Object.keys(lobbies[remoteJid]);
+                if(!id && keys.length===1) id=keys[0];
+                const sala=lobbies[remoteJid][id]; if(!sala||sala.participantes.includes(sender)) return;
+                sala.participantes.push(sender);
+                if(sala.participantes.length<sala.limite){
+                    let l=""; sala.participantes.forEach((p,i)=>l+=`\n${i+1}. @${p.split('@')[0]}`);
+                    await sock.sendMessage(remoteJid,{text:`🎮 *${sala.tipo}*\n👥 ${sala.participantes.length}/${sala.limite}\n${l}\n👉 .me uno ${sala.id}`, mentions:sala.participantes});
+                } else {
+                    clearTimeout(sala.timer); let l=""; sala.participantes.forEach((p,i)=>l+=`\n${i+1}. @${p.split('@')[0]}`);
+                    await sock.sendMessage(remoteJid,{text:`🚀 *FULL TEAM*\n🎮 ${sala.tipo}\n${l}\n#ELNS`, mentions:sala.participantes}); delete lobbies[remoteJid][id];
+                }
+            }
+            if (command === '.encuesta') {
+                let c=text.replace(/^\.encuesta\s*/i,'').trim(); let p=c.split('/').map(s=>s.trim()).filter(s=>s);
+                let op=p.length>1?p.slice(1):["Sí","No"];
+                await sock.sendMessage(remoteJid,{poll:{name:"📊 "+p[0],values:op,selectableCount:1}});
+            }
+            if (command === '.discord') await sock.sendMessage(remoteJid,{text:"📢 *DISCORD*\n🔗 https://discord.gg/yXnPdAvef"});
+            if (command === '.atencion' && remoteJid.endsWith('@g.us')) {
+                const meta=await sock.groupMetadata(remoteJid);
+                await sock.sendMessage(remoteJid,{text:args.slice(1).join(" ")||"📢 *Atención*",mentions:meta.participants.map(p=>p.id)});
+            }
+        } catch(e){console.log(e)}
     });
 }
 connectToWhatsApp();
