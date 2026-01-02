@@ -29,38 +29,38 @@ const MAX_LOBBIES = 6;
 
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE V9.0');
+    res.end('🤖 Bot Elementals: ONLINE V9.1 (Ubuntu)');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
 async function connectToWhatsApp() {
-    // ☢️ CAMBIO DE MEMORIA: Obliga a pedir código nuevo
-    const { state, saveCreds } = await useMultiFileAuthState('auth_elementals_v9_final');
+    // 🗑️ Usamos carpeta nueva para limpiar errores de sesión
+    const { state, saveCreds } = await useMultiFileAuthState('auth_elementals_final_v9.1');
     
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
-        browser: Browsers.macOS('Chrome'), // Modo Mac para evitar bloqueos
+        // 🛡️ CAMBIO CLAVE: Usamos 'Ubuntu' que es más estable en servidores Linux
+        browser: Browsers.ubuntu('Chrome'),
         syncFullHistory: false,
         connectTimeoutMs: 60000, 
     });
 
     if (!sock.authState.creds.registered) {
-        console.log("⏳ Esperando 5 segundos antes de pedir código...");
+        console.log("⏳ Iniciando protocolo de vinculación...");
         setTimeout(async () => {
             try {
-                await delay(5000); 
-                console.log("📞 Intentando pedir código a WhatsApp...");
+                await delay(4000); 
+                console.log("📞 Solicitando código a WhatsApp...");
                 const code = await sock.requestPairingCode(MY_PHONE_NUMBER);
                 const codeLimpio = code?.match(/.{1,4}/g)?.join("-") || code;
                 
-                console.log(`\n\n🟢🟢🟢 CÓDIGO NUEVO (V9.0) 🟢🟢🟢`);
+                console.log(`\n\n🟢🟢🟢 CÓDIGO V9.1 🟢🟢🟢`);
                 console.log(`👉      ${codeLimpio}      👈`);
-                console.log(`🟢🟢🟢 ¡ÚSALO YA! 🟢🟢🟢\n\n`);
+                console.log(`🟢🟢🟢 ¡VINCULA YA! 🟢🟢🟢\n\n`);
             } catch (e) { 
-                console.log("⚠️ Error pidiendo código:", e.message); 
-                console.log("💡 Si dice 'rate-overlimit', espera 10 minutos.");
+                console.log("⚠️ Error pidiendo código:", e.message);
             }
         }, 5000); 
     }
@@ -71,9 +71,11 @@ async function connectToWhatsApp() {
         const { connection, lastDisconnect } = update;
         if (connection === 'close') {
             const reason = lastDisconnect.error?.output?.statusCode;
+            // Si es 405 (Old Version) o 403 (Forbidden), reintentamos
+            console.log(`⚠️ Conexión cerrada: ${reason}. Reintentando...`);
             if (reason !== DisconnectReason.loggedOut) setTimeout(connectToWhatsApp, 5000);
         } else if (connection === 'open') {
-            console.log('✅ BOT CONECTADO Y LISTO (V9.0)');
+            console.log('✅ BOT V9.1 CONECTADO Y ESTABLE');
         }
     });
 
