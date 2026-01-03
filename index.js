@@ -20,12 +20,12 @@ let lobbies = {};
 // SERVIDOR WEB
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE');
+    res.end('🤖 Bot Elementals: ONLINE V14.6');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
 async function connectToWhatsApp() {
-    // 🛡️ SESIÓN ESTABLE
+    // 🛡️ MANTENEMOS SESIÓN ESTABLE
     const { state, saveCreds } = await useMultiFileAuthState('auth_termux_render_final');
     
     const sock = makeWASocket({
@@ -56,7 +56,7 @@ async function connectToWhatsApp() {
             const reason = lastDisconnect.error?.output?.statusCode;
             if (reason !== DisconnectReason.loggedOut) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('✅ BOT LISTO CON MENÚ COMPLETO');
+            console.log('✅ BOT V14.6 ACTIVO - TIKTOK CON IMAGEN');
         }
     });
 
@@ -75,7 +75,7 @@ async function connectToWhatsApp() {
             
             if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
 
-            // --- 1. MENU COMPLETO ---
+            // --- 1. MENÚ ---
             if (command === '.menu' || command === '.ayuda') {
                 const txtMenu = "🤖 *COMANDOS ELEMENTALS* 🤖\n\n" +
                                 "🏆 *RANKED*\n" +
@@ -85,29 +85,61 @@ async function connectToWhatsApp() {
                                 "❄️ *ARAM*\n" +
                                 "• .aram duo\n" +
                                 "• .aram trio\n" +
-                                "• .aram cuarteto (o 4q)\n" +
-                                "• .aram 5q\n\n" +
+                                "• .aram 4q | 5q\n\n" +
+                                "🛠️ *BUILDS*\n" +
+                                "• .build [Campeon]\n\n" +
                                 "📥 *ACCIONES*\n" +
-                                "• .me uno [ID] → Entrar a sala\n\n" +
+                                "• .me uno [ID]\n\n" +
                                 "📊 *ENCUESTAS*\n" +
-                                "• .encuesta Pregunta / Opción 1 / Opción 2\n\n" +
+                                "• .encuesta Pregunta / Op1 / Op2\n\n" +
                                 "⚡ *INFO*\n" +
-                                "• .discord | .reglas | .adm | .atencion";
+                                "• .discord | .tiktok | .reglas\n" +
+                                "• .adm | .atencion";
                 await sock.sendMessage(remoteJid, { text: txtMenu });
             }
 
-            // --- 2. ADMINS ---
-            if (command === '.adm') {
-                const txtAdmins = "👑 *ADMINISTRADORES*\n" +
-                                  "👤 Uvi - +525654812179\n" +
-                                  "👤 Estef - +573114860414\n" +
-                                  "👤 Samu - +573173607093\n" +
-                                  "👤 Cham - +59894793177\n" +
-                                  "👤 Ore - +50687309582";
-                await sock.sendMessage(remoteJid, { text: txtAdmins });
+            // --- 2. TIKTOK (CON IMAGEN) ---
+            if (command === '.tiktok') {
+                await sock.sendMessage(remoteJid, { 
+                    // URL de la imagen de perfil
+                    image: { url: "https://i.imgur.com/dqaeRXo.jpeg" }, 
+                    caption: "🎥 *TIKTOK OFICIAL*\n\nEn este Canal se transmiten los torneos y eventos de Elementals.\n\n🔗 https://www.tiktok.com/@uvitoooo?_r=1&_t=ZS-92m3y2mwL1F" 
+                });
             }
 
-            // --- RESTO DE COMANDOS ---
+            // --- 3. REGLAS ---
+            if (command === '.reglas') {
+                await sock.sendMessage(remoteJid, { 
+                    text: "⚡ *Reglas:*\n1️⃣ Respeto (no flamear ni ofender)\n2️⃣ No spam\n3️⃣ Sin contenido inapropiado\n4️⃣ Juego limpio\n5️⃣ Promoción con permiso\n6️⃣ Respeta al staff\n\n#Elementals ⚡" 
+                });
+            }
+
+            // --- 4. BUILD PRO ---
+            if (command === '.build') {
+                if (!args[1]) return sock.sendMessage(remoteJid, { text: "⚠️ Dime el campeón.\nEjemplo: .build yasuo" });
+                const champName = args.slice(1).join("-").toLowerCase(); 
+                const champDisplay = args.slice(1).join(" ").toUpperCase();
+                const linkFire = `https://www.wildriftfire.com/guide/${champName}`;
+                const linkBest = `https://bestbuildwr.com/champions/${champName}`;
+                await sock.sendMessage(remoteJid, { 
+                    text: `🛠️ *BUILD PRO: ${champDisplay}*\n\n🔥 *WildRiftFire*:\n🔗 ${linkFire}\n\n⚡ *BestBuildWR*:\n🔗 ${linkBest}`,
+                    matchedText: linkFire 
+                });
+            }
+
+            // --- 5. DISCORD ---
+            if (command === '.discord') {
+                await sock.sendMessage(remoteJid, { 
+                    image: { url: "https://i.imgur.com/ttP1mk4.jpeg" }, 
+                    caption: "📢 *DISCORD OFICIAL*\n🔗 https://discord.gg/yXnPdAvef" 
+                });
+            }
+
+            // --- 6. OTROS ---
+            if (command === '.adm') {
+                const txtAdmins = "👑 *ADMINISTRADORES*\n👤 Uvi - +525654812179\n👤 Estef - +573114860414\n👤 Samu - +573173607093\n👤 Cham - +59894793177\n👤 Ore - +50687309582";
+                await sock.sendMessage(remoteJid, { text: txtAdmins });
+            }
             if (command === '.aram') {
                 if (!['duo','trio','4q','cuarteto','5q'].includes(subCommand)) return sock.sendMessage(remoteJid, { text: "⚠️ Use: .aram duo | trio | 4q | 5q" });
                 let limite = 5; if(subCommand==='duo') limite=2; if(subCommand==='trio') limite=3; if(subCommand==='4q'||subCommand==='cuarteto') limite=4;
@@ -147,7 +179,6 @@ async function connectToWhatsApp() {
                 let op=p.length>1?p.slice(1):["Sí","No"];
                 await sock.sendMessage(remoteJid,{poll:{name:"📊 "+p[0],values:op,selectableCount:1}});
             }
-            if (command === '.discord') await sock.sendMessage(remoteJid,{text:"📢 *DISCORD*\n🔗 https://discord.gg/yXnPdAvef"});
             if (command === '.atencion' && remoteJid.endsWith('@g.us')) {
                 const meta=await sock.groupMetadata(remoteJid);
                 await sock.sendMessage(remoteJid,{text:args.slice(1).join(" ")||"📢 *Atención*",mentions:meta.participants.map(p=>p.id)});
