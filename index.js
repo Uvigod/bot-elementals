@@ -17,15 +17,19 @@ const RANGOS = {
 
 let lobbies = {};
 
-// SERVIDOR WEB
+// SERVIDOR WEB (Vital para Render)
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE V14.6');
+    res.end('🤖 Bot Elementals: ONLINE V15 (Anti-Sleep)');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
+// 💓 ANTI-SLEEP INTERNO (Mantiene la consola activa)
+setInterval(() => {
+    console.log("💓 Bot Elementals: Manteniendo sesión activa...");
+}, 60000); // Imprime cada 1 minuto
+
 async function connectToWhatsApp() {
-    // 🛡️ MANTENEMOS SESIÓN ESTABLE
     const { state, saveCreds } = await useMultiFileAuthState('auth_termux_render_final');
     
     const sock = makeWASocket({
@@ -56,7 +60,7 @@ async function connectToWhatsApp() {
             const reason = lastDisconnect.error?.output?.statusCode;
             if (reason !== DisconnectReason.loggedOut) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('✅ BOT V14.6 ACTIVO - TIKTOK CON IMAGEN');
+            console.log('✅ BOT V15 ACTIVO - MODO VIGILIA');
         }
     });
 
@@ -75,7 +79,7 @@ async function connectToWhatsApp() {
             
             if (!lobbies[remoteJid]) lobbies[remoteJid] = {};
 
-            // --- 1. MENÚ ---
+            // MENU
             if (command === '.menu' || command === '.ayuda') {
                 const txtMenu = "🤖 *COMANDOS ELEMENTALS* 🤖\n\n" +
                                 "🏆 *RANKED*\n" +
@@ -98,48 +102,21 @@ async function connectToWhatsApp() {
                 await sock.sendMessage(remoteJid, { text: txtMenu });
             }
 
-            // --- 2. TIKTOK (CON IMAGEN) ---
-            if (command === '.tiktok') {
-                await sock.sendMessage(remoteJid, { 
-                    // URL de la imagen de perfil
-                    image: { url: "https://i.imgur.com/dqaeRXo.jpeg" }, 
-                    caption: "🎥 *TIKTOK OFICIAL*\n\nEn este Canal se transmiten los torneos y eventos de Elementals.\n\n🔗 https://www.tiktok.com/@uvitoooo?_r=1&_t=ZS-92m3y2mwL1F" 
-                });
-            }
-
-            // --- 3. REGLAS ---
-            if (command === '.reglas') {
-                await sock.sendMessage(remoteJid, { 
-                    text: "⚡ *Reglas:*\n1️⃣ Respeto (no flamear ni ofender)\n2️⃣ No spam\n3️⃣ Sin contenido inapropiado\n4️⃣ Juego limpio\n5️⃣ Promoción con permiso\n6️⃣ Respeta al staff\n\n#Elementals ⚡" 
-                });
-            }
-
-            // --- 4. BUILD PRO ---
+            // COMANDOS EXTRA
+            if (command === '.tiktok') await sock.sendMessage(remoteJid, { image: { url: "https://i.imgur.com/dqaeRXo.jpeg" }, caption: "🎥 *TIKTOK OFICIAL*\n\nEn este Canal se transmiten los torneos y eventos de Elementals.\n\n🔗 https://www.tiktok.com/@uvitoooo?_r=1&_t=ZS-92m3y2mwL1F" });
+            if (command === '.reglas') await sock.sendMessage(remoteJid, { text: "⚡ *Reglas:*\n1️⃣ Respeto (no flamear ni ofender)\n2️⃣ No spam\n3️⃣ Sin contenido inapropiado\n4️⃣ Juego limpio\n5️⃣ Promoción con permiso\n6️⃣ Respeta al staff\n\n#Elementals ⚡" });
             if (command === '.build') {
                 if (!args[1]) return sock.sendMessage(remoteJid, { text: "⚠️ Dime el campeón.\nEjemplo: .build yasuo" });
                 const champName = args.slice(1).join("-").toLowerCase(); 
                 const champDisplay = args.slice(1).join(" ").toUpperCase();
                 const linkFire = `https://www.wildriftfire.com/guide/${champName}`;
                 const linkBest = `https://bestbuildwr.com/champions/${champName}`;
-                await sock.sendMessage(remoteJid, { 
-                    text: `🛠️ *BUILD PRO: ${champDisplay}*\n\n🔥 *WildRiftFire*:\n🔗 ${linkFire}\n\n⚡ *BestBuildWR*:\n🔗 ${linkBest}`,
-                    matchedText: linkFire 
-                });
+                await sock.sendMessage(remoteJid, { text: `🛠️ *BUILD PRO: ${champDisplay}*\n\n🔥 *WildRiftFire*:\n🔗 ${linkFire}\n\n⚡ *BestBuildWR*:\n🔗 ${linkBest}`, matchedText: linkFire });
             }
-
-            // --- 5. DISCORD ---
-            if (command === '.discord') {
-                await sock.sendMessage(remoteJid, { 
-                    image: { url: "https://i.imgur.com/ttP1mk4.jpeg" }, 
-                    caption: "📢 *DISCORD OFICIAL*\n🔗 https://discord.gg/yXnPdAvef" 
-                });
-            }
-
-            // --- 6. OTROS ---
-            if (command === '.adm') {
-                const txtAdmins = "👑 *ADMINISTRADORES*\n👤 Uvi - +525654812179\n👤 Estef - +573114860414\n👤 Samu - +573173607093\n👤 Cham - +59894793177\n👤 Ore - +50687309582";
-                await sock.sendMessage(remoteJid, { text: txtAdmins });
-            }
+            if (command === '.discord') await sock.sendMessage(remoteJid, { image: { url: "https://i.imgur.com/ttP1mk4.jpeg" }, caption: "📢 *DISCORD OFICIAL*\n🔗 https://discord.gg/yXnPdAvef" });
+            if (command === '.adm') await sock.sendMessage(remoteJid, { text: "👑 *ADMINISTRADORES*\n👤 Uvi - +525654812179\n👤 Estef - +573114860414\n👤 Samu - +573173607093\n👤 Cham - +59894793177\n👤 Ore - +50687309582" });
+            
+            // RANKED Y ARAM
             if (command === '.aram') {
                 if (!['duo','trio','4q','cuarteto','5q'].includes(subCommand)) return sock.sendMessage(remoteJid, { text: "⚠️ Use: .aram duo | trio | 4q | 5q" });
                 let limite = 5; if(subCommand==='duo') limite=2; if(subCommand==='trio') limite=3; if(subCommand==='4q'||subCommand==='cuarteto') limite=4;
