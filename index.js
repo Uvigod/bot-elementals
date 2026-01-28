@@ -20,7 +20,7 @@ let lobbies = {};
 // SERVIDOR WEB (Vital para Render)
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('🤖 Bot Elementals: ONLINE V15 (Anti-Sleep)');
+    res.end('🤖 Bot Elementals: ONLINE V16 (Anti-Sleep)');
 });
 server.listen(PORT, () => { console.log(`🌐 Web online puerto ${PORT}`); });
 
@@ -60,7 +60,7 @@ async function connectToWhatsApp() {
             const reason = lastDisconnect.error?.output?.statusCode;
             if (reason !== DisconnectReason.loggedOut) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('✅ BOT V15 ACTIVO - MODO VIGILIA');
+            console.log('✅ BOT V16 ACTIVO - MODO VIGILIA');
         }
     });
 
@@ -98,13 +98,23 @@ async function connectToWhatsApp() {
                                 "• .encuesta Pregunta / Op1 / Op2\n\n" +
                                 "⚡ *INFO*\n" +
                                 "• .discord | .tiktok | .reglas\n" +
-                                "• .adm | .atencion";
+                                "• .adm | .atencion | .bienvenida";
                 await sock.sendMessage(remoteJid, { text: txtMenu });
             }
 
             // COMANDOS EXTRA
             if (command === '.tiktok') await sock.sendMessage(remoteJid, { image: { url: "https://i.imgur.com/dqaeRXo.jpeg" }, caption: "🎥 *TIKTOK OFICIAL*\n\nEn este Canal se transmiten los torneos y eventos de Elementals.\n\n🔗 https://www.tiktok.com/@uvitoooo?_r=1&_t=ZS-92m3y2mwL1F" });
             if (command === '.reglas') await sock.sendMessage(remoteJid, { text: "⚡ *Reglas:*\n1️⃣ Respeto (no flamear ni ofender)\n2️⃣ No spam\n3️⃣ Sin contenido inapropiado\n4️⃣ Juego limpio\n5️⃣ Promoción con permiso\n6️⃣ Respeta al staff\n\n#Elementals ⚡" });
+            
+            // --- NUEVO COMANDO AÑADIDO AQUI ---
+            if (command === '.bienvenida') {
+                await sock.sendMessage(remoteJid, { 
+                    image: { url: "https://i.imgur.com/ZObpHNP.jpeg" }, 
+                    caption: "•☆ Bienvenid@ ☆•°\n¿Has tenido experiencia en otros gremios?\nSomos ELEMENTALS — en el apartado de gremios búscanos como ELNS.\nSi necesitas ayuda, pídela con confianza.\n¡Recuerda enviarnos tu captura al ingresar para aceptarte en los demás grupos!\n°•☆" 
+                });
+            }
+            // ----------------------------------
+
             if (command === '.build') {
                 if (!args[1]) return sock.sendMessage(remoteJid, { text: "⚠️ Dime el campeón.\nEjemplo: .build yasuo" });
                 const champName = args.slice(1).join("-").toLowerCase(); 
