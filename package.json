@@ -1,17 +1,12 @@
 {
-  "name": "bot-elementals",
-  "version": "1.0.0",
-  "description": "Bot Elementals Wild Rift",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "latest",
-    "pino": "^9.5.0",
-    "express": "^4.21.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+"name":"bot-elementals",
+"version":"1.0.0",
+"main":"index.js",
+"scripts":{
+"start":"node index.js"
+},
+"dependencies":{
+"@whiskeysockets/baileys":"6.7.8",
+"pino":"^8.17.2"
+}
 }
