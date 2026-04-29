@@ -19,7 +19,8 @@ const GROUP_RECLUTAMIENTO="120363419361096786@g.us";
 
 const WELCOME_GROUPS=[
 GROUP_GENERAL,
-GROUP_RECLUTAMIENTO
+GROUP_RECLUTAMIENTO,
+"120363423601849121@g.us"
 ];
 
 const RANGOS={
@@ -106,7 +107,17 @@ if(update.id===GROUP_GENERAL){
 mensaje=`🌟 ¡Bienvenid@ @${user.split('@')[0]} a ELEMENTALS!\n\n📌 Este es el chat general.\nUsa *.menu* para ver comandos.\n\n⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
-mensaje=`⚔️ Bienvenid@ @${user.split('@')[0]}\n\nBusca nuestro gremio como ELNS.\n📸 Envía tu captura para acceso a más grupos.`;
+mensaje=`⚔️ Bienvenid@ @${user.split('@')[0]}
+
+Busca nuestro gremio como ELNS.
+📸 Envía tu captura para acceso a más grupos.`;
+}
+else if(update.id==="120363423601849121@g.us"){
+mensaje=`🧪 GRUPO DE PRUEBAS
+
+Bienvenid@ @${user.split('@')[0]}
+
+Si ves este mensaje, la bienvenida automática funciona ✅`;
 }
 
 await sock.sendMessage(update.id,{
