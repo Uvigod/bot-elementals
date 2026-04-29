@@ -338,6 +338,7 @@ console.log('Error:',e)
 }
 });
 
+
 }
 
 connectToWhatsApp();
