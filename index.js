@@ -121,8 +121,7 @@ Si ves este mensaje, la bienvenida automática funciona ✅`;
 }
 
 await sock.sendMessage(update.id,{
-image:{url:'https://i.imgur.com/ZObpHNP.jpeg'},
-caption:mensaje,
+text:mensaje,
 mentions:[user]
 });
 }
