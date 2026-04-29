@@ -339,4 +339,4 @@ console.log('Error:',e)
 
 }
 
-connectToWhatsApp();
+connectToWhatsApp(); 
