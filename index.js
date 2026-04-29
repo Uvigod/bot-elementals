@@ -87,7 +87,7 @@ let mensaje='';
 if(update.id===GROUP_GENERAL){
 mensaje=`⚡ ¡Bienvenidos a Elementals! ⚡
 
-Bienvenid@ @${user.split('@')[0]}
+Bienvenid@ @${String(user).split('@')[0]}
 
 🎮 Partidas | 🔥 Torneos | 📈 Skill
 🤝 Un espacio para jugar, convivir y subir de nivel.
@@ -110,7 +110,7 @@ Promoción solo con permiso.
 #Elementals ⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
-mensaje=`@${user.split('@')[0]}
+mensaje=`@${String(user).split('@')[0]}
 
 •☆ Bienvenid@ ☆•°
 ¿Has tenido experiencia en otros gremios?
@@ -121,7 +121,7 @@ Busca ELNS en gremios.
 else if(update.id===GROUP_PRUEBA){
 mensaje=`🧪 GRUPO DE PRUEBAS
 
-Bienvenid@ @${user.split('@')[0]}
+Bienvenid@ @${String(user).split('@')[0]}
 
 Funciona ✅`;
 }
