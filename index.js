@@ -104,10 +104,45 @@ for(const user of update.participants){
 let mensaje='';
 
 if(update.id===GROUP_GENERAL){
-mensaje=`🌟 ¡Bienvenid@ @${user.split('@')[0]} a ELEMENTALS!\n\n📌 Este es el chat general.\nUsa *.menu* para ver comandos.\n\n⚡`;
+mensaje=`🌪️ ELEMENTALS – Wild Rift 🌊
+Comunidad oficial del gremio ⚡
+
+Bienvenid@ @${user.split('@')[0]}
+
+🎮 Partidas | 🔥 Torneos | 📈 Mejora continua
+
+🎙️Discord: https://discord.gg/hybTpQX66
+
+🤝 Espacio para jugar, convivir y crecer juntos
+
+👑 Administradores:
+
+Uvi — +525654812179
+Estef — +573114860414
+Samu — +573173607093
+Cham — +59894793177
+
+⚡ Reglas:
+1️⃣ Respeto (no flamear ni ofender)
+2️⃣ No spam
+3️⃣ Sin contenido inapropiado
+4️⃣ Juego limpio
+5️⃣ Promoción con permiso
+6️⃣ Respeta al staff
+
+#Elementals ⚡`;
+} a ELEMENTALS!\n\n📌 Este es el chat general.\nUsa *.menu* para ver comandos.\n\n⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
-mensaje=`⚔️ Bienvenid@ @${user.split('@')[0]}
+mensaje=`@${user.split('@')[0]}
+
+•☆ Bienvenid@ ☆•°
+¿Has tenido experiencia en otros gremios?
+Somos ELEMENTALS — en el apartado de gremios búscanos como ELNS.
+Si necesitas ayuda, pídela con confianza.
+¡Recuerda enviarnos tu captura al ingresar para aceptarte en los demás grupos!
+°•☆`;
+}
 
 Busca nuestro gremio como ELNS.
 📸 Envía tu captura para acceso a más grupos.`;
@@ -150,23 +185,33 @@ await sock.sendMessage(remoteJid,{text:
 `╔═══ ⚡ *ELEMENTALS BOT* ⚡ ═══╗
 
 🎮 *LOBBIES*
-┆ .ranked
+┆ .ranked duo [elo]
+┆ .ranked trio [elo]
+┆ .ranked 5q [elo]
 ┆ .me uno [id]
 
 🛠️ *UTILIDADES*
 ┆ .build [campeón]
-┆ .idgrupo
 
 📚 *COMUNIDAD*
 ┆ .reglas
 ┆ .adm
 ┆ .dc
 ┆ .bienvenida
+┆ .todos [mensaje]
 
 ━━━━━━━━━━━━━━━━━━
 🏛️ Gremio: *ELNS*
 🔥 Powered by Elementals
 ╚════════════════════╝`
+});
+}
+
+if(command==='.todos' && remoteJid.endsWith('@g.us')){
+const meta=await sock.groupMetadata(remoteJid);
+await sock.sendMessage(remoteJid,{
+text:args.slice(1).join(' ')||'📢 Atención a todos',
+mentions:meta.participants.map(p=>p.id)
 });
 }
 
@@ -177,11 +222,15 @@ await sock.sendMessage(remoteJid,{text:`🆔 ${remoteJid}`});
 
 if(command==='.dc'){
 await sock.sendMessage(remoteJid,{
-text:`🎮 *DISCORD OFICIAL ELEMENTALS*
+image:{
+url:'./dc.png'
+},
+caption:`🎮 *DISCORD OFICIAL ELEMENTALS*
 
 🔗 https://discord.gg/hybTpQX66
 
-Scrims • Torneos • Comunidad`
+Comunidad`
+});
 });
 }
 
@@ -230,16 +279,33 @@ await sock.sendMessage(remoteJid,{text:
 });
 }
 
-// ejemplo simple ranked para usar .me uno
 if(command==='.ranked'){
+if(!['duo','trio','5q'].includes(subCommand)) return;
+
+let limite=5;
+if(subCommand==='duo') limite=2;
+if(subCommand==='trio') limite=3;
+
 let salaID=1;
 while(lobbies[remoteJid][salaID]) salaID++;
+
+const eloArg=args.slice(2).join('').toLowerCase();
+const rango=RANGOS[eloArg]||'Elo Libre';
+
 lobbies[remoteJid][salaID]={
 id:salaID,
-limite:2,
-participantes:[sender]
+limite,
+participantes:[sender],
+rango,
+tipo:`RANKED ${subCommand.toUpperCase()}`
 };
-await sock.sendMessage(remoteJid,{text:`🎮 Sala ${salaID} creada\n👉 .me uno ${salaID}`});
+
+await sock.sendMessage(remoteJid,{
+text:`🎮 ${subCommand.toUpperCase()} (Sala ${salaID})
+🏅 ${rango}
+👥 1/${limite}
+👉 .me uno ${salaID}`
+});
 }
 
 if(command==='.me'&&subCommand==='uno'){
