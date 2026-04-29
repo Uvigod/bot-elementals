@@ -112,12 +112,13 @@ Promoción solo con permiso.
 #Elementals ⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
-mensaje=`@${tag}
+mensaje=`${tag}
 
 •☆ Bienvenid@ ☆•°
 ¿Has tenido experiencia en otros gremios?
-Busca ELNS en gremios.
-¡Envía tu captura al ingresar!
+Somos ELEMENTALS — en el apartado de gremios búscanos como ELNS.
+Si necesitas ayuda, pídela con confianza.
+¡Recuerda enviarnos tu captura al ingresar para aceptarte en los demás grupos!
 °•☆`;
 }
 else if(update.id===GROUP_PRUEBA){
