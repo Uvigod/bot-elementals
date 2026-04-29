@@ -139,7 +139,7 @@ if(update.id===GROUP_GENERAL){
 await sock.sendMessage(update.id,{
 audio:{url:'./bienvenida.mp3'},
 mimetype:'audio/mpeg',
-ptt:true
+ptt:false
 });
 }
 }
