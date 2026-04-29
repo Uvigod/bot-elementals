@@ -92,7 +92,11 @@ console.log('✅ CONECTADO A WHATSAPP');
 // ===== BIENVENIDA SOLO EN GRUPOS AUTORIZADOS =====
 sock.ev.on('group-participants.update',async(update)=>{
 try{
-if(update.action!=='add') return;
+console.log('Evento grupo:', update);
+if(
+update.action!=='add' &&
+update.action!=='invite'
+) return;
 if(!WELCOME_GROUPS.includes(update.id)) return;
 
 for(const user of update.participants){
@@ -130,7 +134,26 @@ if(!lobbies[remoteJid]) lobbies[remoteJid]={};
 
 if(command==='.menu'){
 await sock.sendMessage(remoteJid,{text:
-`🤖 BOT ELEMENTALS\n\n.ranked duo [elo]\n.aram trio\n.build yasuo\n.idgrupo\n.adm\n.reglas`
+`╔═══ ⚡ *ELEMENTALS BOT* ⚡ ═══╗
+
+🎮 *LOBBIES*
+┆ .ranked
+┆ .me uno [id]
+
+🛠️ *UTILIDADES*
+┆ .build [campeón]
+┆ .idgrupo
+
+📚 *COMUNIDAD*
+┆ .reglas
+┆ .adm
+┆ .dc
+┆ .bienvenida
+
+━━━━━━━━━━━━━━━━━━
+🏛️ Gremio: *ELNS*
+🔥 Powered by Elementals
+╚════════════════════╝`
 });
 }
 
@@ -139,10 +162,32 @@ if(!remoteJid.endsWith('@g.us')) return;
 await sock.sendMessage(remoteJid,{text:`🆔 ${remoteJid}`});
 }
 
+if(command==='.dc'){
+await sock.sendMessage(remoteJid,{
+text:`🎮 *DISCORD OFICIAL ELEMENTALS*
+
+🔗 https://discord.gg/hybTpQX66
+
+Scrims • Torneos • Comunidad`
+});
+}
+
 if(command==='.adm'){
 await sock.sendMessage(remoteJid,{
 text:
-`👑 *ADMINISTRADORES*\n\n👤 Uvi\n+525654812179\n\n👤 Estef\n+573114860414\n\n👤 Samu\n+573173607093\n\n👤 Cham\n+59894793177`
+`👑 *STAFF ELEMENTALS*
+
+⚔️ Uvi
+📞 +525654812179
+
+⚔️ Estef
+📞 +573114860414
+
+⚔️ Samu
+📞 +573173607093
+
+⚔️ Cham
+📞 +59894793177`
 });
 }
 
@@ -155,7 +200,12 @@ caption:'✨ Bienvenid@ a Elementals'
 
 if(command==='.reglas'){
 await sock.sendMessage(remoteJid,{text:
-`⚡ Reglas\n1 Respeto\n2 No spam\n3 Juego limpio`
+`⚖️ *REGLAS ELNS*
+
+1️⃣ Respeto
+2️⃣ No spam
+3️⃣ Juego limpio
+4️⃣ No flame`
 });
 }
 
