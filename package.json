@@ -1,21 +1,10 @@
 {
-  "name": "bot-elementals-wildrift",
-  "version": "1.0.0",
-  "description": "Bot de WhatsApp para el gremio Elementals",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
-    "pino": "^9.0.0",
-    "pino-pretty": "^11.0.0",
-    "qrcode-terminal": "^0.12.0",
-    "http": "^0.0.1-security"
-  },
-  "engines": {
-    "node": "22.x"
-  },
-  "author": "Alejandro",
-  "license": "ISC"
+ "name":"bot-elementals",
+ "version":"1.0.0",
+ "main":"index.js",
+ "scripts":{"start":"node index.js"},
+ "dependencies":{
+   "@whiskeysockets/baileys":"latest",
+   "pino":"latest"
+ }
 }
