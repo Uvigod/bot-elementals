@@ -134,6 +134,14 @@ image:{url:'./bienvenida.png'},
 caption:mensaje,
 mentions:[userId]
 });
+
+if(update.id===GROUP_GENERAL){
+await sock.sendMessage(update.id,{
+audio:{url:'./bienvenida.mp3'},
+mimetype:'audio/mpeg',
+ptt:true
+});
+}
 }
 }catch(e){console.log(e)}
 });
