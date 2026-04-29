@@ -82,12 +82,14 @@ if(update.action!=='add' && update.action!=='invite') return;
 if(!WELCOME_GROUPS.includes(update.id)) return;
 
 for(const user of update.participants){
+const userId=String(user);
+const tag=userId.split('@')[0];
 let mensaje='';
 
 if(update.id===GROUP_GENERAL){
 mensaje=`⚡ ¡Bienvenidos a Elementals! ⚡
 
-Bienvenid@ @${String(user).split('@')[0]}
+Bienvenid@ @${tag}
 
 🎮 Partidas | 🔥 Torneos | 📈 Skill
 🤝 Un espacio para jugar, convivir y subir de nivel.
@@ -110,7 +112,7 @@ Promoción solo con permiso.
 #Elementals ⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
-mensaje=`@${String(user).split('@')[0]}
+mensaje=`@${tag}
 
 •☆ Bienvenid@ ☆•°
 ¿Has tenido experiencia en otros gremios?
@@ -121,7 +123,7 @@ Busca ELNS en gremios.
 else if(update.id===GROUP_PRUEBA){
 mensaje=`🧪 GRUPO DE PRUEBAS
 
-Bienvenid@ @${String(user).split('@')[0]}
+Bienvenid@ @${tag}
 
 Funciona ✅`;
 }
@@ -129,7 +131,7 @@ Funciona ✅`;
 await sock.sendMessage(update.id,{
 image:{url:'./bienvenida.png'},
 caption:mensaje,
-mentions:[user]
+mentions:[userId]
 });
 }
 }catch(e){console.log(e)}
