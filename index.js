@@ -121,7 +121,10 @@ Si ves este mensaje, la bienvenida automática funciona ✅`;
 }
 
 await sock.sendMessage(update.id,{
-text:mensaje,
+image:{
+url:'./bienvenida.png'
+},
+caption:mensaje,
 mentions:[user]
 });
 }
