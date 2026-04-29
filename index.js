@@ -131,6 +131,7 @@ Cham — +59894793177
 6️⃣ Respeta al staff
 
 #Elementals ⚡`;
+} a ELEMENTALS!\n\n📌 Este es el chat general.\nUsa *.menu* para ver comandos.\n\n⚡`;
 }
 else if(update.id===GROUP_RECLUTAMIENTO){
 mensaje=`@${user.split('@')[0]}
@@ -339,4 +340,4 @@ console.log('Error:',e)
 
 }
 
-connectToWhatsApp(); 
+connectToWhatsApp();
