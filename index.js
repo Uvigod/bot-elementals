@@ -82,8 +82,8 @@ if(update.action!=='add' && update.action!=='invite') return;
 if(!WELCOME_GROUPS.includes(update.id)) return;
 
 for(const user of update.participants){
-const userId=String(user);
-const tag=userId.split('@')[0];
+const userId=typeof user==='object' ? user.id : String(user);
+const tag='@'+userId.split('@')[0];
 let mensaje='';
 
 if(update.id===GROUP_GENERAL){
