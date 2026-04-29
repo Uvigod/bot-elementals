@@ -1,10 +1,13 @@
 {
- "name":"bot-elementals",
- "version":"1.0.0",
- "main":"index.js",
- "scripts":{"start":"node index.js"},
- "dependencies":{
-   "@whiskeysockets/baileys":"latest",
-   "pino":"latest"
- }
+  "name": "bot-elementals",
+  "version": "1.0.0",
+  "description": "Bot de WhatsApp para comunidad Elementals",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "pino": "latest"
+  }
 }
