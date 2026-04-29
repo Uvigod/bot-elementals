@@ -85,12 +85,27 @@ for(const user of update.participants){
 let mensaje='';
 
 if(update.id===GROUP_GENERAL){
-mensaje=`🌪️ ELEMENTALS – Wild Rift 🌊
+mensaje=`⚡ ¡Bienvenidos a Elementals! ⚡
 
 Bienvenid@ @${user.split('@')[0]}
 
-🎙️Discord:
-https://discord.gg/hybTpQX66
+🎮 Partidas | 🔥 Torneos | 📈 Skill
+🤝 Un espacio para jugar, convivir y subir de nivel.
+
+📍 Únete al Discord:
+👉 https://discord.gg/hybTpQX66
+
+👑 Staff:
+🇲🇽 Uvi (+52 56 5481 2179)
+🇨🇴 Estef (+57 311 486 0414)
+🇨🇴 Samu (+57 317 360 7093)
+🇺🇾 Cham (+598 94 793 177)
+
+📜 Reglas de Oro:
+Respeto total (Cero toxicidad).
+No Spam ni contenido inapropiado.
+Juego limpio siempre.
+Promoción solo con permiso.
 
 #Elementals ⚡`;
 }
@@ -138,17 +153,27 @@ if(!lobbies[remoteJid]) lobbies[remoteJid]={};
 
 if(command==='.menu'){
 return sock.sendMessage(remoteJid,{text:
-`⚡ ELEMENTALS BOT
+`╔══════ ⚡ *ELEMENTALS BOT* ⚡ ══════╗
 
-.ranked duo [elo]
-.ranked trio [elo]
-.ranked 5q [elo]
-.me uno [id]
-.build [campeon]
-.dc
-.adm
-.reglas
-.todos [mensaje]`
+🎮 *LOBBIES RANKED*
+┆ .ranked duo [elo]
+┆ .ranked trio [elo]
+┆ .ranked 5q [elo]
+┆ .me uno [id]
+
+🛠️ *UTILIDADES*
+┆ .build [campeón]
+┆ .todos [mensaje]
+
+🏛️ *COMUNIDAD*
+┆ .dc
+┆ .adm
+┆ .reglas
+
+━━━━━━━━━━━━━━━━━━━━
+⚔️ Gremio: ELNS
+🌪️ Wild Rift Community
+╚════════════════════════╝`
 });
 }
 
@@ -161,17 +186,30 @@ caption:`🎮 DISCORD OFICIAL ELEMENTALS\n\nhttps://discord.gg/hybTpQX66\n\nComu
 
 if(command==='.adm'){
 return sock.sendMessage(remoteJid,{text:
-`👑 STAFF
-Uvi +525654812179
-Estef +573114860414
-Samu +573173607093
-Cham +59894793177`
+`👑 *STAFF ELEMENTALS*
+
+⚔️ Uvi
+📞 +525654812179
+
+⚔️ Estef
+📞 +573114860414
+
+⚔️ Samu
+📞 +573173607093
+
+⚔️ Cham
+📞 +59894793177`
 });
 }
 
 if(command==='.reglas'){
 return sock.sendMessage(remoteJid,{text:
-`1 Respeto\n2 No spam\n3 Juego limpio`
+`⚖️ *REGLAS ELNS*
+
+1️⃣ Respeto
+2️⃣ No spam
+3️⃣ Juego limpio
+4️⃣ No flame ni toxicidad`
 });
 }
 
